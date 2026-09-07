@@ -1,8 +1,13 @@
+import { useQuery } from "@apollo/client/react";
+import { ALL_AUTHORS } from "../../queries";
+
 const Authors = (props) => {
-  if (!props.show) {
-    return null
-  }
-  const authors = []
+  const result = useQuery(ALL_AUTHORS);
+
+  if (!props.show) return null;
+  if (result.loading) return <div>loading...</div>;
+
+  const authors = result.data.allAuthors;
 
   return (
     <div>
@@ -24,7 +29,7 @@ const Authors = (props) => {
         </tbody>
       </table>
     </div>
-  )
-}
+  );
+};
 
-export default Authors
+export default Authors;
