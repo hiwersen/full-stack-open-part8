@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import { EDIT_AUTHOR, ALL_AUTHORS } from "../queries";
 
-const SetBirthYear = () => {
-  const [name, setName] = useState("");
-  const [birthYear, setBirthYear] = useState("");
+const BirthYearForm = ({ authors }) => {
+  const [name, setName] = useState(authors[0].name);
+  const [birthYear, setBirthYear] = useState(authors[0].born || "");
 
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
@@ -18,8 +18,8 @@ const SetBirthYear = () => {
 
     editAuthor({ variables: { name, setBornTo } });
 
-    setName("");
-    setBirthYear("");
+    setName(authors[0].name);
+    setBirthYear(String(authors[0].born) || "");
   };
 
   return (
@@ -29,12 +29,21 @@ const SetBirthYear = () => {
         <div>
           <label>
             name
-            <input
+            <select
               value={name}
               onChange={({ target }) => {
                 setName(target.value);
+                setBirthYear(
+                  authors.find((a) => a.name === target.value).born || "",
+                );
               }}
-            />
+            >
+              {authors.map((a) => (
+                <option key={a.id} value={a.name}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
         <div>
@@ -56,4 +65,4 @@ const SetBirthYear = () => {
   );
 };
 
-export default SetBirthYear;
+export default BirthYearForm;
