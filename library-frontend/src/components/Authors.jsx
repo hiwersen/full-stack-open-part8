@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client/react";
-import { ALL_AUTHORS } from "../../queries";
+import { ALL_AUTHORS } from "../queries";
 
 const Authors = (props) => {
   const result = useQuery(ALL_AUTHORS);
