@@ -1,10 +1,5 @@
-const { v1: uuid } = require("uuid");
-const { GraphQLError } = require("graphql");
-
-/*
- * It might make more sense to associate a book with its author by storing the author's id in the context of the book instead of the author's name
- * However, for simplicity, we will store the author's name in connection with the book
- */
+const Book = require("./models/book");
+const Author = require("./models/author");
 
 let authors = [
   {
@@ -86,31 +81,40 @@ let books = [
 
 const resolvers = {
   Author: {
-    bookCount: (root) => books.filter((b) => b.author === root.name).length,
+    bookCount: async ({ _id }) => Book.countDocuments({ author: _id }),
   },
   Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
-    allBooks: (_, { author, genre }) => {
-      let result = books;
-      if (author) result = result.filter((b) => b.author === author);
-      if (genre) result = result.filter((b) => b.genres.includes(genre));
-      return result;
-    },
-    allAuthors: () => authors,
-  },
-  Mutation: {
-    addBook: (_, args) => {
-      if (books.find(({ title }) => title === args.title)) return null;
+    bookCount: async () => Book.collection.countDocuments(),
+    authorCount: async () => Author.collection.countDocuments(),
+    allBooks: async (_, { author, genre }) => {
+      const filter = {};
 
-      if (!authors.find(({ name }) => name === args.author)) {
-        const author = { name: args.author, id: uuid() };
-        authors = authors.concat(author);
+      if (author) {
+        const authorDoc = await Author.findOne({ name: author });
+        if (!authorDoc) return [];
+
+        filter.author = authorDoc._id;
       }
 
-      const book = { ...args, id: uuid() };
-      books = books.concat(book);
-      return book;
+      if (genre) filter.genres = { $in: [genre] };
+
+      return Book.find(filter).populate("author");
+    },
+    allAuthors: async () => Author.find({}),
+  },
+  Mutation: {
+    addBook: async (_, args) => {
+      if (await Book.exists({ title: args.title })) return null;
+
+      let author = await Author.findOne({ name: args.author });
+      if (!author) {
+        author = new Author({ name: args.author });
+        await author.save();
+      }
+
+      const book = new Book({ ...args, author: author._id });
+      const savedBook = await book.save();
+      return savedBook.populate("author");
     },
     editAuthor: (_, args) => {
       let author = authors.find(({ name }) => name === args.name);

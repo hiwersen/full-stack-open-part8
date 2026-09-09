@@ -1,4 +1,5 @@
+# Secrets
 .env
 
+# Packages
 node_modules/
-

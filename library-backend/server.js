@@ -11,7 +11,7 @@ const startServer = (port) => {
   });
 
   startStandaloneServer(server, {
-    listen: { port: 4000 },
+    listen: { port },
   }).then(({ url }) => {
     console.log(`Server ready at ${url}`);
   });
