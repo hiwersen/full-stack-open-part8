@@ -104,7 +104,8 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (_, args) => {
-      if (await Book.exists({ title: args.title })) return null;
+      const bookExists = await Book.exists({ title: args.title });
+      if (bookExists) return null;
 
       let author = await Author.findOne({ name: args.author });
       if (!author) {
@@ -116,13 +117,12 @@ const resolvers = {
       const savedBook = await book.save();
       return savedBook.populate("author");
     },
-    editAuthor: (_, args) => {
-      let author = authors.find(({ name }) => name === args.name);
+    editAuthor: async (_, args) => {
+      const author = await Author.findOne({ name: args.name });
       if (!author) return null;
 
-      author = { ...author, born: args.setBornTo };
-      authors = authors.map((a) => (a.id !== author.id ? a : author));
-      return author;
+      author.born = args.setBornTo;
+      return author.save();
     },
   },
 };
