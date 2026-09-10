@@ -108,10 +108,7 @@ const resolvers = {
       const currentUser = context.currentUser;
 
       if (!currentUser) {
-        throw errorHandler({
-          error: { type: "AuthenticationError" },
-          message: "Not authenticated",
-        });
+        return null;
       }
 
       return currentUser;
@@ -173,10 +170,7 @@ const resolvers = {
       const author = await Author.findOne({ name: args.name });
 
       if (!author) {
-        throw errorHandler({
-          error: { type: "UserInputError" },
-          message: `Author not found: ${args.name}`,
-        });
+        return null;
       }
 
       author.born = args.setBornTo;
@@ -229,6 +223,19 @@ const resolvers = {
       const token = jwt.sign(userForToken, process.env.JWT_SECRET);
 
       return { value: token };
+    },
+    _resetDatabase: async () => {
+      if (process.env.NODE_ENV !== "test") {
+        throw new GraphQLError("_resetDatabase is only available in test mode");
+      }
+
+      await Author.deleteMany({});
+
+      await Book.deleteMany({});
+
+      await User.deleteMany({});
+
+      return true;
     },
   },
 };
