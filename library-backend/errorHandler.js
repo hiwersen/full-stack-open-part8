@@ -16,6 +16,16 @@ const errorHandler = ({ error, message }) => {
     });
   }
 
+  if (error.type === "AuthenticationError") {
+    return new GraphQLError(message, {
+      extensions: {
+        code: "UNAUTHENTICATED",
+        invalidArgs: error.errors ? Object.keys(error.errors) : undefined,
+        error,
+      },
+    });
+  }
+
   return error;
 };
 

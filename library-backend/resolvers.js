@@ -1,6 +1,8 @@
 const errorHandler = require("./errorHandler");
 const Book = require("./models/book");
 const Author = require("./models/author");
+const User = require("./models/user");
+const jwt = require("jsonwebtoken");
 
 let authors = [
   {
@@ -102,9 +104,28 @@ const resolvers = {
       return Book.find(filter).populate("author");
     },
     allAuthors: async () => Author.find({}),
+    me: async (_, __, context) => {
+      const currentUser = context.currentUser;
+
+      if (!currentUser) {
+        throw errorHandler({
+          error: { type: "AuthenticationError" },
+          message: "Not authenticated",
+        });
+      }
+
+      return currentUser;
+    },
   },
   Mutation: {
-    addBook: async (_, args) => {
+    addBook: async (_, args, { currentUser }) => {
+      if (!currentUser) {
+        throw errorHandler({
+          error: { type: "AuthenticationError" },
+          message: "User not authenticated",
+        });
+      }
+
       const bookExists = await Book.exists({ title: args.title });
 
       if (bookExists) {
@@ -141,7 +162,14 @@ const resolvers = {
 
       return book.populate("author");
     },
-    editAuthor: async (_, args) => {
+    editAuthor: async (_, args, { currentUser }) => {
+      if (!currentUser) {
+        throw errorHandler({
+          error: { type: "AuthenticationError" },
+          message: "User not authenticated",
+        });
+      }
+
       const author = await Author.findOne({ name: args.name });
 
       if (!author) {
@@ -163,6 +191,44 @@ const resolvers = {
       }
 
       return author;
+    },
+    createUser: async (_, args) => {
+      const userExists = await User.exists({ username: args.username });
+
+      if (userExists) {
+        throw errorHandler({
+          error: { type: "UserInputError" },
+          message: `User must be unique: ${args.username} already exists`,
+        });
+      }
+
+      const user = new User({ ...args });
+
+      try {
+        await user.save();
+      } catch (error) {
+        throw errorHandler({
+          error,
+          message: `Creating user ${args.username} failed: ${error.message}`,
+        });
+      }
+
+      return user;
+    },
+    login: async (_, args) => {
+      const user = await User.findOne({ username: args.username });
+
+      if (!user || args.password !== "secret") {
+        throw errorHandler({
+          error: { type: "AuthenticationError" },
+          message: "Wrong credentials",
+        });
+      }
+
+      const userForToken = { username: user.username, id: user._id };
+      const token = jwt.sign(userForToken, process.env.JWT_SECRET);
+
+      return { value: token };
     },
   },
 };
