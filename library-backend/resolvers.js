@@ -1,3 +1,4 @@
+const errorHandler = require("./errorHandler");
 const Book = require("./models/book");
 const Author = require("./models/author");
 
@@ -105,24 +106,63 @@ const resolvers = {
   Mutation: {
     addBook: async (_, args) => {
       const bookExists = await Book.exists({ title: args.title });
-      if (bookExists) return null;
+
+      if (bookExists) {
+        throw errorHandler({
+          error: { type: "UserInputError" },
+          message: `Title must be unique: ${args.title}`,
+        });
+      }
 
       let author = await Author.findOne({ name: args.author });
       if (!author) {
         author = new Author({ name: args.author });
-        await author.save();
+
+        try {
+          await author.save();
+        } catch (error) {
+          throw errorHandler({
+            error,
+            message: `Saving author failed: ${error.message}`,
+          });
+        }
       }
 
       const book = new Book({ ...args, author: author._id });
-      const savedBook = await book.save();
-      return savedBook.populate("author");
+
+      try {
+        await book.save();
+      } catch (error) {
+        throw errorHandler({
+          error,
+          message: `Saving book failed: ${error.message}`,
+        });
+      }
+
+      return book.populate("author");
     },
     editAuthor: async (_, args) => {
       const author = await Author.findOne({ name: args.name });
-      if (!author) return null;
+
+      if (!author) {
+        throw errorHandler({
+          error: { type: "UserInputError" },
+          message: `Author not found: ${args.name}`,
+        });
+      }
 
       author.born = args.setBornTo;
-      return author.save();
+
+      try {
+        await author.save();
+      } catch (error) {
+        throw errorHandler({
+          error,
+          message: `Saving author failed: ${error.message}`,
+        });
+      }
+
+      return author;
     },
   },
 };
