@@ -2,10 +2,9 @@ import { useQuery } from "@apollo/client/react";
 import { ALL_AUTHORS } from "../queries";
 import BirthYearForm from "./BirthYearForm";
 
-const Authors = (props) => {
+const Authors = ({ token }) => {
   const result = useQuery(ALL_AUTHORS);
 
-  if (!props.show) return null;
   if (result.loading) return <div>loading...</div>;
 
   const authors = result.data.allAuthors;
@@ -29,7 +28,7 @@ const Authors = (props) => {
           ))}
         </tbody>
       </table>
-      <BirthYearForm authors={authors} />
+      {token && <BirthYearForm authors={authors} />}
     </div>
   );
 };
