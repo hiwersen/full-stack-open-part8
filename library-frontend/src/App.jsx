@@ -2,6 +2,7 @@ import { useState } from "react";
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
+import Recommendations from "./components/Recommendations";
 import LoginForm from "./components/LoginForm";
 import { useApolloClient } from "@apollo/client/react";
 
@@ -28,6 +29,7 @@ const App = () => {
         {token ? (
           <>
             <button onClick={() => setPage("add")}>add book</button>
+            <button onClick={() => setPage("recommend")}>recommend</button>
             <button onClick={handleLogout}>logout</button>
           </>
         ) : (
@@ -40,6 +42,8 @@ const App = () => {
       {page === "books" && <Books />}
 
       {page === "add" && token && <NewBook />}
+
+      {page === "recommend" && token && <Recommendations />}
 
       {page === "login" && !token && (
         <LoginForm setPage={setPage} setToken={setToken} />
