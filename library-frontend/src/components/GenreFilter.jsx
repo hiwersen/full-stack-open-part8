@@ -1,9 +1,9 @@
 import { useQuery } from "@apollo/client/react";
 import { getGenres } from "../utils/books";
-import { ALL_BOOKS } from "../queries";
+import { ALL_GENRES } from "../queries";
 
 const GenreFilter = ({ setGenre }) => {
-  const result = useQuery(ALL_BOOKS);
+  const result = useQuery(ALL_GENRES);
 
   if (result.loading) return <div>loading...</div>;
 
@@ -16,7 +16,7 @@ const GenreFilter = ({ setGenre }) => {
           {g}
         </button>
       ))}
-      <button key={"all genres"} onClick={() => setGenre(null)}>
+      <button key={"all genres"} onClick={() => setGenre("all genres")}>
         all genres
       </button>
     </div>

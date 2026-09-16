@@ -11,7 +11,11 @@ const NewBook = () => {
   const genreInputId = useId();
 
   const [addBook] = useMutation(ADD_BOOK, {
-    refetchQueries: [{ query: ALL_AUTHORS }, { query: ALL_BOOKS }],
+    refetchQueries: [{ query: ALL_AUTHORS }],
+    update: (cache) => {
+      cache.evict({ fieldName: "allBooks" });
+      cache.gc();
+    },
   });
 
   const submit = (event) => {

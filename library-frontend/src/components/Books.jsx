@@ -5,8 +5,10 @@ import BookList from "./BookList";
 import GenreFilter from "./GenreFilter";
 
 const Books = () => {
-  const [genre, setGenre] = useState(null);
-  const result = useQuery(ALL_BOOKS, { variables: { genre } });
+  const [genre, setGenre] = useState("all genres");
+  const result = useQuery(ALL_BOOKS, {
+    variables: { genre: genre === "all genres" ? null : genre },
+  });
 
   if (result.loading) return <div>loading...</div>;
 

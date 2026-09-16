@@ -25,9 +25,19 @@ export const ALL_BOOKS = gql`
   }
 `;
 
+export const ALL_GENRES = gql`
+  query AllGenres($genre: String) {
+    allBooks(genre: $genre) {
+      id
+      genres
+    }
+  }
+`;
+
 export const ME = gql`
   query {
     me {
+      id
       favoriteGenre
     }
   }

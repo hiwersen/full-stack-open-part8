@@ -1,5 +1,5 @@
-export const getGenres = (books) => {
+export const getGenres = (genres) => {
   return [
-    ...new Set(books.reduce((genres, b) => [...genres, ...b.genres], [])),
+    ...new Set(genres.reduce((genres, g) => [...genres, ...g.genres], [])),
   ];
 };
