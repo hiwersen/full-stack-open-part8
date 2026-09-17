@@ -1,4 +1,4 @@
-import { useState, useId } from "react";
+import { useState } from "react";
 import { useMutation } from "@apollo/client/react";
 import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS } from "../queries";
 
@@ -8,7 +8,6 @@ const NewBook = () => {
   const [published, setPublished] = useState("");
   const [genre, setGenre] = useState("");
   const [genres, setGenres] = useState([]);
-  const genreInputId = useId();
 
   const [addBook] = useMutation(ADD_BOOK, {
     refetchQueries: [{ query: ALL_AUTHORS }],
@@ -70,9 +69,9 @@ const NewBook = () => {
           </label>
         </div>
         <div>
-          <label htmlFor={genreInputId}>
+          <label>
+            genre
             <input
-              id={genreInputId}
               value={genre}
               onChange={({ target }) => setGenre(target.value)}
             />

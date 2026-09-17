@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Notification from "./components/Notification";
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
@@ -11,14 +12,29 @@ const App = () => {
   const [token, setToken] = useState(
     localStorage.getItem("library-user-token"),
   );
+  const [notification, setNotification] = useState(null);
+  const [timeoutID, setTimeoutID] = useState(null);
 
   const client = useApolloClient();
 
+  const notify = (notification) => {
+    timeoutID && clearTimeout(timeoutID);
+
+    setNotification(notification);
+
+    const ID = setTimeout(() => {
+      setNotification(null);
+      setTimeoutID(null);
+    }, 5000);
+    setTimeoutID(ID);
+  };
+
   const handleLogout = () => {
     localStorage.clear();
-    setToken(null);
-    setPage("authors");
     client.resetStore();
+    setPage("authors");
+    setToken(null);
+    notify("logged out");
   };
 
   return (
@@ -37,6 +53,8 @@ const App = () => {
         )}
       </div>
 
+      <Notification notification={notification} />
+
       {page === "authors" && <Authors token={token} />}
 
       {page === "books" && <Books />}
@@ -46,7 +64,7 @@ const App = () => {
       {page === "recommend" && token && <Recommendations />}
 
       {page === "login" && !token && (
-        <LoginForm setPage={setPage} setToken={setToken} />
+        <LoginForm setPage={setPage} setToken={setToken} notify={notify} />
       )}
     </div>
   );

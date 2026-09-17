@@ -24,12 +24,13 @@ const BirthYearForm = ({ authors }) => {
 
   return (
     <div>
-      <h3>set birth year</h3>
+      <h3>Set birthyear</h3>
       <form onSubmit={handleSubmit}>
         <div>
           <label>
             name
             <select
+              name="name"
               value={name}
               onChange={({ target }) => {
                 setName(target.value);
