@@ -1,9 +1,15 @@
+const { GraphQLError } = require("graphql");
 const errorHandler = require("./errorHandler");
+const { PubSub } = require("graphql-subscriptions");
+const jwt = require("jsonwebtoken");
+
 const Book = require("./models/book");
 const Author = require("./models/author");
 const User = require("./models/user");
-const jwt = require("jsonwebtoken");
 
+const pubsub = new PubSub();
+
+/*
 let authors = [
   {
     name: "Robert Martin",
@@ -81,6 +87,7 @@ let books = [
     genres: ["classic", "revolution"],
   },
 ];
+*/
 
 const resolvers = {
   Author: {
@@ -157,7 +164,11 @@ const resolvers = {
         });
       }
 
-      return book.populate("author");
+      await book.populate("author");
+
+      pubsub.publish("BOOK_ADDED", { bookAdded: book });
+
+      return book;
     },
     editAuthor: async (_, args, { currentUser }) => {
       if (!currentUser) {
@@ -236,6 +247,11 @@ const resolvers = {
       await User.deleteMany({});
 
       return true;
+    },
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterableIterator("BOOK_ADDED"),
     },
   },
 };

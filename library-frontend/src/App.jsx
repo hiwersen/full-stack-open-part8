@@ -5,7 +5,8 @@ import Books from "./components/Books";
 import NewBook from "./components/NewBook";
 import Recommendations from "./components/Recommendations";
 import LoginForm from "./components/LoginForm";
-import { useApolloClient } from "@apollo/client/react";
+import { useApolloClient, useSubscription } from "@apollo/client/react";
+import { BOOK_ADDED } from "./queries.js";
 
 const App = () => {
   const [page, setPage] = useState("authors");
@@ -36,6 +37,13 @@ const App = () => {
     setToken(null);
     notify("logged out");
   };
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      const { bookAdded } = data.data;
+      notify(`${bookAdded.title} added`);
+    },
+  });
 
   return (
     <div>
