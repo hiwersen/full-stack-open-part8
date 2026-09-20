@@ -31,9 +31,12 @@ const App = () => {
   };
 
   useSubscription(BOOK_ADDED, {
-    onData: ({ data }) => {
+    onData: ({ data, client }) => {
       const { bookAdded } = data.data;
       notify(`${bookAdded.title} added`);
+
+      client.cache.evict({ fieldName: "allBooks" });
+      client.cache.gc();
     },
   });
 
