@@ -30,6 +30,13 @@ const App = () => {
     setTimeoutID(ID);
   };
 
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      const { bookAdded } = data.data;
+      notify(`${bookAdded.title} added`);
+    },
+  });
+
   const handleLogout = () => {
     localStorage.clear();
     client.resetStore();
@@ -37,13 +44,6 @@ const App = () => {
     setToken(null);
     notify("logged out");
   };
-
-  useSubscription(BOOK_ADDED, {
-    onData: ({ data }) => {
-      const { bookAdded } = data.data;
-      notify(`${bookAdded.title} added`);
-    },
-  });
 
   return (
     <div>
