@@ -14,6 +14,7 @@ const jwt = require("jsonwebtoken");
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
 const User = require("./models/user");
+const Book = require("./models/book");
 
 const getUserFromAuthHeader = (auth) => {
   if (!auth || !auth.startsWith("Bearer ")) return null;

@@ -91,7 +91,10 @@ let books = [
 
 const resolvers = {
   Author: {
-    bookCount: async ({ _id }) => Book.countDocuments({ author: _id }),
+    bookCount: async ({ _id }) => {
+      console.log("Book.countDocuments");
+      return Book.countDocuments({ author: _id });
+    },
   },
   Query: {
     bookCount: async () => Book.collection.countDocuments(),
@@ -110,7 +113,10 @@ const resolvers = {
 
       return Book.find(filter).populate("author");
     },
-    allAuthors: async () => Author.find({}),
+    allAuthors: async () => {
+      console.log("Author.find");
+      return Author.find({});
+    },
     me: async (_, __, context) => {
       const currentUser = context.currentUser;
 
